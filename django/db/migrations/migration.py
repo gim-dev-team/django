@@ -1,5 +1,11 @@
 import re
 
+from django.conf import settings
+from django.db.migrations.operations.special import (
+    RunPython,
+    RunSQL,
+    SeparateDatabaseAndState,
+)
 from django.db.migrations.utils import get_migration_name_timestamp
 from django.db.transaction import atomic
 
@@ -101,6 +107,16 @@ class Migration:
         Migrations.
         """
         for operation in self.operations:
+            ###################################################################
+            ## Patch START
+            if settings.SHALLOW_RELOAD_MIGRATION and (
+                isinstance(operation, SeparateDatabaseAndState)
+                or isinstance(operation, RunSQL)
+                or isinstance(operation, RunPython)
+            ):
+                project_state.reload_models(models=None)
+            ## Patch END
+            ###################################################################
             # If this operation cannot be represented as SQL, place a comment
             # there instead
             if collect_sql:
