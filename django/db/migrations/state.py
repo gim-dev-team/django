@@ -396,17 +396,47 @@ class ProjectState:
 
     def reload_model(self, app_label, model_name, delay=False):
         if "apps" in self.__dict__:  # hasattr would cache the property
-            related_models = self._find_reload_model(app_label, model_name, delay)
-            self._reload(related_models)
+            ###################################################################
+            ## Old code
+            # related_models = self._find_reload_model(app_label, model_name, delay)
+            # self._reload(related_models)
+            ## Patch START
+            if settings.SHALLOW_RELOAD_MIGRATION:
+                self._reload(set([(app_label, model_name)]))
+            else:
+                related_models = self._find_reload_model(app_label, model_name, delay)
+                self._reload(related_models)
+            ## Patch END
+            ###################################################################
 
     def reload_models(self, models, delay=True):
         if "apps" in self.__dict__:  # hasattr would cache the property
-            related_models = set()
-            for app_label, model_name in models:
-                related_models.update(
-                    self._find_reload_model(app_label, model_name, delay)
-                )
-            self._reload(related_models)
+            ###################################################################
+            ## Old code
+            # related_models = set()
+            # for app_label, model_name in models:
+            #     related_models.update(
+            #         self._find_reload_model(app_label, model_name, delay)
+            #     )
+            ## Patch START
+            if settings.SHALLOW_RELOAD_MIGRATION:
+                if models is None:
+                    related_models = set(self.models.keys())
+                else:
+                    related_models = set()
+                    for app_label, model_name in models:
+                        related_models.update(
+                            self._find_reload_model(app_label, model_name, delay)
+                        )
+                self._reload(related_models)
+            else:
+                related_models = set()
+                for app_label, model_name in models:
+                    related_models.update(
+                        self._find_reload_model(app_label, model_name, delay)
+                    )
+            ## Patch END
+            ###################################################################
 
     def _reload(self, related_models):
         # Unregister all related models
