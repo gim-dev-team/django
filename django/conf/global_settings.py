@@ -643,11 +643,6 @@ STATICFILES_FINDERS = [
 # Migration module overrides for apps, by app label.
 MIGRATION_MODULES = {}
 
-# Only generate first degree relations between tables when building the project
-# state. This speeds up migration but can be dangerous.
-# See https://forum.djangoproject.com/t/very-slow-migrations-with-large-numbers-of-tables/29038/7
-SHALLOW_RELOAD_MIGRATION = False
-
 #################
 # SYSTEM CHECKS #
 #################

@@ -1,6 +1,5 @@
 import re
 
-from django.conf import settings
 from django.db.migrations.operations.special import (
     RunPython,
     RunSQL,
@@ -109,7 +108,9 @@ class Migration:
         for operation in self.operations:
             ###################################################################
             ## Patch START
-            if settings.SHALLOW_RELOAD_MIGRATION and (
+            # Only generate first degree relations between tables when building
+            # the project state. This speeds up migration but can be dangerous.
+            if os.environ.get("SHALLOW_RELOAD_MIGRATION", False) and (
                 isinstance(operation, SeparateDatabaseAndState)
                 or isinstance(operation, RunSQL)
                 or isinstance(operation, RunPython)

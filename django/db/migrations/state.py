@@ -401,7 +401,9 @@ class ProjectState:
             # related_models = self._find_reload_model(app_label, model_name, delay)
             # self._reload(related_models)
             ## Patch START
-            if settings.SHALLOW_RELOAD_MIGRATION:
+            # Only generate first degree relations between tables when building
+            # the project state. This speeds up migration but can be dangerous.
+            if os.environ.get("SHALLOW_RELOAD_MIGRATION", False):
                 self._reload(set([(app_label, model_name)]))
             else:
                 related_models = self._find_reload_model(app_label, model_name, delay)
@@ -419,7 +421,9 @@ class ProjectState:
             #         self._find_reload_model(app_label, model_name, delay)
             #     )
             ## Patch START
-            if settings.SHALLOW_RELOAD_MIGRATION:
+            # Only generate first degree relations between tables when building
+            # the project state. This speeds up migration but can be dangerous.
+            if os.environ.get("SHALLOW_RELOAD_MIGRATION", False):
                 if models is None:
                     related_models = set(self.models.keys())
                 else:
